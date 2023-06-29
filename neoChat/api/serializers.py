@@ -42,4 +42,15 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.save()
 
         return user
+    
+
+class OnlineUserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ['id','username']
+
+class StartChatSerializer(serializers.Serializer):
+
+    username = serializers.CharField(required=True)
 

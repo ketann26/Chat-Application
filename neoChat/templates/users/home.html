@@ -19,10 +19,23 @@
         <a href="{% url 'logout' %}">Logout?</a>
     </div>
 
-    <div>
+    <p> Here is a list of users you might wanna chat with... </p>
+
+    <div style='display:flex; flex-flow: row wrap'>
         {% for other_user in all_users %}
         {% construct_url user.id other_user.id as urlstring %}
-        <a href="{% url 'room' urlstring %}">{{ other_user.first_name }}</a> {% if other_user.email == '1' %}Online{% endif %}
+        <div class="card" style="width: 18rem; border: 1px solid gray; margin: 2px; padding-left: 5px">
+            <div class="card-body">
+                <h5 class="card-title">{{ other_user.first_name }}</h5>
+                <h6 class="card-subtitle mb-2 text-muted" style="color: green;">
+                    {% if other_user.email == '1' %}Online
+                    {% else %} <br/>
+                    {% endif %}
+                    </h6>
+                <a href="{% url 'room' urlstring %}">Chat</a>
+             
+            </div>
+          </div>
         {% endfor %}
     </div>
     

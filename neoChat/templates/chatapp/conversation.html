@@ -1,30 +1,38 @@
-<!-- DOCTYPE html -->
-<html>
-<head>
-    <meta charset="utf-8"/>
-    <title>Chat Room</title>
-</head>
-<body>
+{% extends 'chatapp/base.html' %}
+{% block content %}
+
+<div class='col-sm-6 col-sm-offset-3'>
     <h1>You are now chatting with {{ other_user.username }}</h1>
-    <textarea readonly id="chat-log" cols="100" rows="20" style='resize:none'>
+    <hr>
+    <textarea readonly id="chat-log" cols="60" rows="20" style='resize:none'>
         {% for chat_message in prev_chats %}
     {{ chat_message.sender.username }}:  {{ chat_message.message }}
         {% endfor %}
-    </textarea><br> 
+    </textarea>
+
+    <br>
+    <br>
 
     {% if other_user.email == '1' %}
     
-    <input id="chat-message-input" type="text" size="100"><br>
+    <input id="chat-message-input" type="text" size="51">
     <input id="chat-message-submit" type="button" value="Send">
+    <br><br>
 
     {% else %}
 
     <p>You cannot send messages because the user is not online</p>
 
     {% endif %}
+    <div>
+    <button type="button" class="btn btn-danger"><a href="{% url 'home' %}" style="color:white; text-decoration: none">Leave</a></button>
+    </div>
+</div>
 
     {{ room_name | json_script:"room-name" }}               <!-- thread name same as room name for simplicity -->
-    {{ user.username | json_script:"sender-username" }}  
+    {{ user.username | json_script:"sender-username" }} 
+    
+
 
     <script>
 
@@ -76,5 +84,4 @@
     </script>
 
     
-</body>
-</html>
+{% endblock %}

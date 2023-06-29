@@ -5,22 +5,32 @@
     <title>Chat Room</title>
 </head>
 <body>
-    {% if permission %}
     <h1>You are now chatting with {{ other_user.username }}</h1>
     <textarea readonly id="chat-log" cols="100" rows="20" style='resize:none'>
         {% for chat_message in prev_chats %}
     {{ chat_message.sender.username }}:  {{ chat_message.message }}
         {% endfor %}
     </textarea><br> 
+
+    {% if other_user.email == '1' %}
     
     <input id="chat-message-input" type="text" size="100"><br>
     <input id="chat-message-submit" type="button" value="Send">
-    
+
+    {% else %}
+
+    <p>You cannot send messages because the user is not online</p>
+
+    {% endif %}
 
     {{ room_name | json_script:"room-name" }}               <!-- thread name same as room name for simplicity -->
     {{ user.username | json_script:"sender-username" }}  
 
     <script>
+
+        var textarea = document.getElementById('chat-log');
+        textarea.scrollTop = textarea.scrollHeight;
+
         const roomName = JSON.parse(document.getElementById('room-name').textContent);
         const senderUsername = JSON.parse(document.getElementById('sender-username').textContent);
 
@@ -65,8 +75,6 @@
         };
     </script>
 
-    {% else %}
-    <p>You are not authorized to enter this conversation</p>
-    {% endif %}
+    
 </body>
 </html>

@@ -11,6 +11,6 @@ class Message(models.Model):
 
     def __str__(self) -> str:
         return f'{self.sender.username}-{self.thread_name}' if self.sender else f'{self.message}-{self.thread_name}'
-    
-    def get_last_30_messages(self,thread_name):
-        pass
+
+
+

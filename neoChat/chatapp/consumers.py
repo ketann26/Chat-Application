@@ -18,51 +18,32 @@ class ChatConsumer(AsyncWebsocketConsumer):
         return get_user_model().objects.filter(username=username).first()
 
     @database_sync_to_async
-    def get_messages(self, thread_name):
+    def update_user_on_connect(self, id):
+        user = get_user_model().objects.filter(id=id).first()
+        user.email = '1'
+        user.save()
 
-        messages = Message.objects.all()
+    @database_sync_to_async
+    def update_user_on_disconnect(self, id):
+        user = get_user_model().objects.filter(id=id).first()
+        user.email = ''
+        user.save()
 
-        content = {
-            'messages':self.messages_to_json(messages)
-        }
-
-        return content
-    
-    def messages_to_json(self,messages):
-        result = []
-        for message in messages:
-            result.append(self.message_to_json(message))
-        return result
-    
-    def message_to_json(self,message):
-        return {
-            'sender': message.sender.username,
-            'message': message.message,
-            'timestamp': str(message.timestamp),
-        }
 
     async def connect(self):
 
         self.room_name = self.scope['url_route']['kwargs']['room_name'] 
         self.room_group_name = f'chat_{self.room_name}' 
+        
+        await self.update_user_on_connect(self.scope['user'].id)
 
         await self.channel_layer.group_add(self.room_group_name, self.channel_name) 
-
-        # prev_messages = await self.get_messages(self.room_name)
-        # print(prev_messages)
-
-        # await self.channel_layer.group_send(
-        #     self.room_group_name,
-        #     {
-        #         'type': 'chat_message',
-        #         'message': prev_messages,
-                
-        #     },
-        # ) 
-
         await self.accept()     
 
     async def disconnect(self, close_code):
+
+        await self.update_user_on_disconnect(self.scope['user'].id)
+        
         await self.channel_layer.group_discard(self.room_group_name, self.channel_layer)
         await self.disconnect(close_code)
 

@@ -31,15 +31,10 @@ def room(request, room_name):
         messages.info(request, 'You are not authorized to enter this chat!')
         return redirect('home')
 
-    print(other_user)
-
     # retrieving previously stored messages
     
     threads = ['chat-{}-{}'.format(auth_user1_id,auth_user2_id),'chat-{}-{}'.format(auth_user2_id,auth_user1_id)]
     prev_chats = Message.objects.filter(Q(thread_name=threads[0])|Q(thread_name=threads[1])).order_by('timestamp')
-
-    print(prev_chats)
-
 
     context = {
         "room_name": room_name,

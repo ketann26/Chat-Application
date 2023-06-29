@@ -22,7 +22,7 @@
     <div>
         {% for other_user in all_users %}
         {% construct_url user.id other_user.id as urlstring %}
-        <a href="{% url 'room' urlstring %}">{{ other_user.first_name }} {{ other_user.id }}</a>
+        <a href="{% url 'room' urlstring %}">{{ other_user.first_name }}</a> {% if other_user.email == '1' %}Online{% endif %}
         {% endfor %}
     </div>
     

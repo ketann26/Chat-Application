@@ -1,0 +1,38 @@
+{% extends 'users/base.html' %}
+{% load chatapp_extras %}
+{% block content %}
+
+<div class='col-sm-6 col-sm-offset-3'>
+    {% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+    <h1>Home Page</h1>
+    <hr>
+    
+    {% if user.is_authenticated %}
+    <div class="alert alert-success" role="alert">
+        <h3>Welcome {{ user.username }}!</h3>
+        <a href="{% url 'logout' %}">Logout?</a>
+    </div>
+
+    <div>
+        {% for other_user in all_users %}
+        {% construct_url user.id other_user.id as urlstring %}
+        <a href="{% url 'room' urlstring %}">{{ other_user.first_name }} {{ other_user.id }}</a>
+        {% endfor %}
+    </div>
+    
+    {% else %}
+        <div class="alert alert-success" role="alert">
+            <h3>Welcome!</h3>
+            <a href="{% url 'register' %}">Signup</a>
+            <a href="{% url 'login' %}">Login</a>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

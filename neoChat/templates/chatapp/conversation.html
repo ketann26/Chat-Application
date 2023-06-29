@@ -1,0 +1,72 @@
+<!-- DOCTYPE html -->
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Chat Room</title>
+</head>
+<body>
+    {% if permission %}
+    <h1>You are now chatting with {{ other_user.username }}</h1>
+    <textarea readonly id="chat-log" cols="100" rows="20" style='resize:none'>
+        {% for chat_message in prev_chats %}
+    {{ chat_message.sender.username }}:  {{ chat_message.message }}
+        {% endfor %}
+    </textarea><br> 
+    
+    <input id="chat-message-input" type="text" size="100"><br>
+    <input id="chat-message-submit" type="button" value="Send">
+    
+
+    {{ room_name | json_script:"room-name" }}               <!-- thread name same as room name for simplicity -->
+    {{ user.username | json_script:"sender-username" }}  
+
+    <script>
+        const roomName = JSON.parse(document.getElementById('room-name').textContent);
+        const senderUsername = JSON.parse(document.getElementById('sender-username').textContent);
+
+        const chatSocket = new WebSocket(
+            'ws://'
+            + window.location.host
+            + '/ws/chat/'
+            + roomName
+            + '/'
+        );
+
+        console.log(chatSocket)
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            document.querySelector('#chat-log').value += (data.sender + ':  ' + data.message + '\n');
+        };
+
+        chatSocket.onclose = function(e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+
+        document.querySelector('#chat-message-input').focus();
+        document.querySelector('#chat-message-input').onkeyup = function(e) {
+            if (e.keyCode === 13) {  // enter, return
+                document.querySelector('#chat-message-submit').click();
+            }
+        };
+
+        document.querySelector('#chat-message-submit').onclick = function(e) {
+            const messageInputDom = document.querySelector('#chat-message-input');
+            const message = messageInputDom.value;
+        
+            chatSocket.send(JSON.stringify({
+                'message': message,
+                'username': senderUsername,
+                'thread_name': roomName,
+
+            }));
+
+            messageInputDom.value = '';
+        };
+    </script>
+
+    {% else %}
+    <p>You are not authorized to enter this conversation</p>
+    {% endif %}
+</body>
+</html>

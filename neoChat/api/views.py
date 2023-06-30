@@ -116,7 +116,7 @@ class SuggestFriends(APIView):
 
                 for interest in user['interests']:
                     if interest in user_interest_list:
-                        score = score + user['interests'][interest]
+                        score = score + user['interests'][interest] + curr_user['interests'][interest]
 
                 user_scores[user['id']] = score
 

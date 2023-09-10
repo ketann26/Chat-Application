@@ -1,4 +1,5 @@
 import json
+import redis
 
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
@@ -6,6 +7,8 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from django.contrib.auth import get_user_model
 
 from .models import Message
+
+conn = redis.Redis('localhost')
 
 class ChatConsumer(AsyncWebsocketConsumer):
 
@@ -35,14 +38,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.room_name = self.scope['url_route']['kwargs']['room_name'] 
         self.room_group_name = f'chat_{self.room_name}' 
         
-        await self.update_user_on_connect(self.scope['user'].id)
+        # await self.update_user_on_connect(self.scope['user'].id)
+        conn.rpush('UserList',self.scope['user'].username)
 
         await self.channel_layer.group_add(self.room_group_name, self.channel_name) 
         await self.accept()     
 
     async def disconnect(self, close_code):
 
-        await self.update_user_on_disconnect(self.scope['user'].id)
+        # await self.update_user_on_disconnect(self.scope['user'].id)
+        conn.lrem('UserList',0,self.scope['user'].username)
         
         await self.channel_layer.group_discard(self.room_group_name, self.channel_layer)
         await self.disconnect(close_code)

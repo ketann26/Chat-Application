@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 
 import json
+import redis
 
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
@@ -14,6 +15,8 @@ from rest_framework.parsers import JSONParser
 from knox.auth import AuthToken
 
 from .serializers import RegisterSerializer,OnlineUserSerializer,StartChatSerializer
+
+conn = redis.Redis('localhost')
 
 @api_view(['POST'])
 def login_api(request):
@@ -52,10 +55,17 @@ def get_online_users_api(request):
     
     if request.method=='GET':
 
-        users = get_user_model().objects.filter(email='1')
-        serializer = OnlineUserSerializer(users,many=True)
+        # users = get_user_model().objects.filter(email='1')
+        # serializer = OnlineUserSerializer(users,many=True)
+
+        data = []
+
+        for i in range(0, conn.llen('UserList')):
+
+            if conn.lindex('UserList', i) not in data:
+                data.append(conn.lindex('UserList', i))
     
-    return Response(serializer.data)
+    return Response(data)
 
 @login_required
 @api_view(['POST'])
@@ -77,7 +87,7 @@ def start_chat_api(request):
                 if request.user.id<recipient.id:
                     room_name = 'chat-{}-{}'.format(request.user.id,recipient.id)
                 else:
-                    room_name = 'chat-{}-{}'.format(recipient.idrequest.user.id,) 
+                    room_name = 'chat-{}-{}'.format(recipient.id,request.user.id) 
 
                 return Response({
                     'message': 'Success!',

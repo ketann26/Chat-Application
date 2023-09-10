@@ -5,6 +5,17 @@ from django.contrib import messages
 
 from .models import Message
 
+import redis
+
+conn = redis.Redis('localhost',decode_responses=True)
+
+online_users = []
+for i in range(0, conn.llen('UserList')):
+    if conn.lindex('UserList', i) not in online_users:
+        online_users.append(conn.lindex('UserList', i))
+
+print(online_users)
+
 # Create your views here.
 
 def room(request, room_name):
@@ -40,7 +51,8 @@ def room(request, room_name):
         "room_name": room_name,
         "permission": permission,
         "other_user": other_user,
-        "prev_chats": prev_chats,       
+        "prev_chats": prev_chats,
+        "online_users": online_users,       
     }
 
     return render(request, "chatapp/conversation.html", context)

@@ -28,7 +28,7 @@
             <div class="card-body">
                 <h5 class="card-title">{{ other_user.first_name }}</h5>
                 <h6 class="card-subtitle mb-2 text-muted" style="color: green;">
-                    {% if other_user.email == '1' %}Online
+                    {% if other_user.username in online_users %}Online
                     {% else %} <br/>
                     {% endif %}
                     </h6>
